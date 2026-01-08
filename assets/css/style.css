@@ -1,7 +1,9 @@
 /* === Base reset  === */
 
-*,*:before,*:after {
-  box-sizing: inherit
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
 }
 
 html {
@@ -17,7 +19,12 @@ body {
   background-color: #fff;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: "Segoe UI", Verdana, system-ui, sans-serif;
   margin: 0.5em 0;
   font-weight: 500;
@@ -42,7 +49,8 @@ table {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   vertical-align: middle;
 }
 
@@ -50,8 +58,8 @@ button,
 input,
 select,
 textarea {
-    font-family: inherit;
-    font: inherit;
+  font-family: inherit;
+  font: inherit;
 }
 
 img {
@@ -75,7 +83,8 @@ img {
 }
 
 /* Lists */
-ul, ol {
+ul,
+ol {
   margin: 0.5em 0;
   padding-left: 2em;
 }
@@ -107,7 +116,8 @@ summary {
 }
 
 /* Hidden elements */
-[hidden], template {
+[hidden],
+template {
   display: none;
 }
 
@@ -508,6 +518,8 @@ tbody > tr:nth-child(odd) {
 
 .brand__img--mobile {
   max-height: 42px;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 /* Layout */
@@ -604,7 +616,6 @@ tbody > tr:nth-child(odd) {
   z-index: 1001;
   backdrop-filter: blur(10px);
   animation: fadeInDown 0.2s ease-out;
-  /* Ensure menu stays open when hovering */
   pointer-events: auto;
 }
 
@@ -619,14 +630,12 @@ tbody > tr:nth-child(odd) {
   }
 }
 
-/* Open on hover + keyboard focus */
 .navDrop:hover .navMenu,
 .navDrop:focus-within .navMenu,
 .navMenu:hover {
   display: block;
 }
 
-/* Hover bridge to prevent flicker when moving into menu */
 .navMenu::before {
   content: "";
   position: absolute;
@@ -743,6 +752,7 @@ tbody > tr:nth-child(odd) {
   width: 44px;
   height: 44px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .iconBtn:hover,
@@ -888,7 +898,13 @@ tbody > tr:nth-child(odd) {
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   position: relative;
-  background: linear-gradient(to right, transparent 0%, transparent 85%, rgba(0, 0, 0, 0.08) 95%, rgba(0, 0, 0, 0.12) 100%);
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 85%,
+    rgba(0, 0, 0, 0.08) 95%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
 }
 
 .table-scroll-wrapper table {
@@ -899,14 +915,21 @@ tbody > tr:nth-child(odd) {
 
 @media (max-width: 768px) {
   .table-scroll-wrapper {
-    background: linear-gradient(to right, transparent 0%, transparent 75%, rgba(0, 0, 0, 0.1) 90%, rgba(0, 0, 0, 0.15) 100%);
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.1) 90%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
     position: relative;
   }
 }
 
 /* Tablet styles - between mobile and desktop */
 @media (max-width: 1024px) and (min-width: 769px) {
-  th, td {
+  th,
+  td {
     padding: 0.4em 0.3em;
     font-size: 0.85em;
   }
@@ -918,7 +941,8 @@ tbody > tr:nth-child(odd) {
 }
 
 @media (max-width: 768px) {
-  th, td {
+  th,
+  td {
     padding: 0.35em 0.25em;
     font-size: 0.7em;
   }
@@ -928,11 +952,13 @@ tbody > tr:nth-child(odd) {
     padding: 2px;
   }
 
-  .th-pos, .td-pos {
+  .th-pos,
+  .td-pos {
     width: 2.5em;
   }
 
-  .th-nat, .td-nat {
+  .th-nat,
+  .td-nat {
     width: 2.5em;
   }
 
@@ -940,25 +966,29 @@ tbody > tr:nth-child(odd) {
     width: 2em;
   }
 
-  .td-driver, .td-team-name {
+  .td-driver,
+  .td-team-name {
     min-width: 80px;
     max-width: 150px;
     word-wrap: break-word;
   }
 
-  .td-nat img, .th-location img {
+  .td-nat img,
+  .th-location img {
     max-width: 1.2em;
     max-height: 1.2em;
   }
 }
 
 @media (max-width: 480px) {
-  th, td {
+  th,
+  td {
     padding: 0.3em 0.2em;
     font-size: 0.5em;
   }
 
-  .td-driver, .td-team-name {
+  .td-driver,
+  .td-team-name {
     min-width: 100px;
     max-width: 130px;
   }
@@ -967,7 +997,6 @@ tbody > tr:nth-child(odd) {
     border-width: 0 1px 1px 0;
     padding: 1.5px;
   }
-
 }
 
 @media (max-width: 1024px) and (min-width: 769px) {
@@ -1092,7 +1121,7 @@ tbody > tr:nth-child(odd) {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   z-index: 1000;
   display: none;
-  
+
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.05);
 }
@@ -1121,7 +1150,7 @@ tbody > tr:nth-child(odd) {
 }
 
 .column-filter__items {
- column-count: 2;
+  column-count: 2;
 }
 
 .column-filter__item {
