@@ -973,12 +973,12 @@ tbody>tr:nth-child(odd) {
 
 /* Fade indicator for horizontal scroll on touch devices */
 @media (pointer: coarse) {
-  .table-scroll-wrapper {
+  .table-scroll-wrapper.is-scrollable {
     mask-image: linear-gradient(to right, black 75%, rgba(0, 0, 0, 0.8) 80%, rgba(0, 0, 0, 0.1) 97%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, black 75%, rgba(0, 0, 0, 0.8) 80%, rgba(0, 0, 0, 0.1) 97%, transparent 100%);
   }
 
-  .table-scroll-wrapper.scrolled-past-80 {
+  .table-scroll-wrapper.is-scrollable.scrolled-past-80 {
     mask-image: none;
     -webkit-mask-image: none;
   }
@@ -1128,7 +1128,7 @@ tbody>tr:nth-child(odd) {
   th,
   td {
     padding: 0.3em 0.4em;
-    font-size: 0.5em;
+    font-size: 0.55em;
   }
 
   th {
@@ -1138,7 +1138,7 @@ tbody>tr:nth-child(odd) {
 
   .td-driver,
   .td-team-name {
-    min-width: 100px;
+    min-width: 80px;
     max-width: 130px;
   }
 
