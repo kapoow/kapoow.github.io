@@ -971,7 +971,7 @@ tbody>tr:nth-child(odd) {
   transform: translateZ(0);
 }
 
-/* Fade indicator for horizontal scroll on touch devices */
+/* Fade indicator for horizontal scroll on touch devices - only when scrollable */
 @media (pointer: coarse) {
   .table-scroll-wrapper.is-scrollable {
     mask-image: linear-gradient(to right, black 75%, rgba(0, 0, 0, 0.8) 80%, rgba(0, 0, 0, 0.1) 97%, transparent 100%);

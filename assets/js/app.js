@@ -115,16 +115,9 @@ function initTopScrollbar() {
   const table = document.getElementById("tableDrivers");
   if (!table) return;
 
-  // Check if device is touch-enabled (used throughout function)
-  const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-
-  // Sync scroll positions with throttling to prevent flickering
-  let isScrollingTable = false;
-  let isScrollingIndicator = false;
-  let scrollTimeout = null;
-
   function updateScrollbarVisibility() {
     const needsScroll = table.offsetWidth > tableWrapper.clientWidth;
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
     
     // Don't show on touch devices - let CSS handle it
     if (isTouchDevice) {
@@ -140,6 +133,17 @@ function initTopScrollbar() {
       void scrollIndicator.offsetHeight;
     }
   }
+
+  requestAnimationFrame(() => {
+    updateScrollbarVisibility();
+    updateFadeIndicators();
+  });
+
+  // Sync scroll positions with throttling to prevent flickering
+  let isScrollingTable = false;
+  let isScrollingIndicator = false;
+  let scrollTimeout = null;
+  const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
   function syncTableToIndicator() {
     if (!isScrollingIndicator && scrollIndicator.style.display !== "none") {
@@ -160,9 +164,10 @@ function initTopScrollbar() {
   function updateFadeIndicators() {
     if (!isTouchDevice) return;
 
+    // Check if table is actually scrollable (same check as desktop scrollbar)
     const needsScroll = table.offsetWidth > tableWrapper.clientWidth;
     
-    // Only show mask when table is actually scrollable
+    // Only add is-scrollable class when table is actually scrollable
     tableWrapper.classList.toggle("is-scrollable", needsScroll);
     
     if (needsScroll) {
@@ -178,16 +183,6 @@ function initTopScrollbar() {
       // Remove scrolled-past-80 class when not scrollable
       tableWrapper.classList.remove("scrolled-past-80");
     }
-  }
-
-  requestAnimationFrame(() => {
-    updateScrollbarVisibility();
-    updateFadeIndicators();
-  });
-
-  // Initial check for scrollability on touch devices
-  if (isTouchDevice) {
-    updateFadeIndicators();
   }
 
   // Combined scroll handler for better performance
@@ -217,6 +212,10 @@ function initTopScrollbar() {
   
   resizeObserver.observe(table);
   resizeObserver.observe(tableWrapper);
+
+  if (isTouchDevice) {
+    updateFadeIndicators();
+  }
 }
 
 function initColumnFilter(table) {
