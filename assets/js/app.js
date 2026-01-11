@@ -30,57 +30,43 @@ function toggleNav(navId) {
 }
 
 function openPopup(id) {
-  var popup = document.getElementById(id);
+  const popup = document.getElementById(id);
+  if (!popup) return;
   popup.classList.toggle("show");
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+
+
+/*NEW TABLE SORTING WITH FIXED SCROLLBAR TIMING*/
+document.addEventListener("DOMContentLoaded", function () {
   const table = document.getElementById("tableDrivers");
+  if (!table) return;
+
   const headers = table.querySelectorAll("th");
-  let sortOrder = 1;
+  if (headers.length === 0) return;
 
-  sortTableByColumn(table, 0, 1);
-  updateHeaderStyles(headers, headers[0], 1);
+  // Special status values - worst values (DNF, DNS, N/A)
+  // Note: "--" is NOT a worst value, it represents the best (fastest/no difference)
+  const WORST_STATUS = { 'dnf': 1, 'dns': 2, 'n/a': 3 };
 
-  headers.forEach((header, index) => {
-    header.addEventListener("click", (e) => {
-      // Don't sort if clicking on a link inside the header
-      if (e.target.closest('a')) {
-        return;
+  // Parse time format (HH:MM:SS.mmm or +HH:MM:SS.mmm)
+  function parseTime(timeStr) {
+    if (!timeStr || typeof timeStr !== 'string') return null;
+    const trimmed = timeStr.trim();
+    const isNegative = trimmed.startsWith('-');
+    const cleanTime = trimmed.replace(/^[+-]/, '');
+    const parts = cleanTime.split(':');
+    
+    if (parts.length === 3) {
+      const hours = parseFloat(parts[0]);
+      const minutes = parseFloat(parts[1]);
+      const seconds = parseFloat(parts[2]);
+      if (!isNaN(hours) && !isNaN(minutes) && !isNaN(seconds)) {
+        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+        return isNegative ? -totalSeconds : totalSeconds;
       }
-      sortTableByColumn(table, index, sortOrder);
-      updateHeaderStyles(headers, header, sortOrder);
-      sortOrder *= -1;
-    });
-  });
-
-  function sortTableByColumn(table, columnIndex, order) {
-    const tbody = table.querySelector("tbody");
-    const rows = Array.from(tbody.querySelectorAll("tr"));
-
-    rows.sort((rowA, rowB) => {
-      const cellA = getCellValue(rowA.children[columnIndex]);
-      const cellB = getCellValue(rowB.children[columnIndex]);
-
-      const isNumberA = !isNaN(cellA);
-      const isNumberB = !isNaN(cellB);
-
-      if (cellA === "" && cellB === "") return 0;
-      if (cellA === "") return -1 * order;
-      if (cellB === "") return 1 * order;
-
-      if (isNumberA && isNumberB) {
-        return (parseFloat(cellA) - parseFloat(cellB)) * order;
-      } else if (isNumberA) {
-        return 1 * order;
-      } else if (isNumberB) {
-        return -1 * order;
-      } else {
-        return cellA.localeCompare(cellB) * order;
-      }
-    });
-
-    rows.forEach(row => tbody.appendChild(row));
+    }
+    return null;
   }
 
   function getCellValue(cell) {
@@ -88,11 +74,98 @@ document.addEventListener("DOMContentLoaded", function() {
     if (img) {
       return img.alt.toLowerCase();
     }
-    const text = cell.innerText.toLowerCase();
+    const text = cell.textContent.toLowerCase().trim();
     if (text === "=") {
       return "0";
     }
     return text;
+  }
+
+  function sortTableByColumn(table, columnIndex, order) {
+    const tbody = table.querySelector("tbody");
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    // Check if this column contains time values by checking the header class
+    const headers = table.querySelectorAll("thead th");
+    const header = headers[columnIndex];
+    const isTimeColumn = header && (
+      header.classList.contains("th-ps") ||
+      header.classList.contains("th-total") ||
+      header.classList.contains("th-diff")
+    );
+
+    rows.sort((rowA, rowB) => {
+      // Guard against missing cells
+      const cellElementA = rowA.children[columnIndex];
+      const cellElementB = rowB.children[columnIndex];
+      
+      if (!cellElementA || !cellElementB) {
+        if (!cellElementA && !cellElementB) return 0;
+        return !cellElementA ? 1 * order : -1 * order;
+      }
+
+      const cellA = getCellValue(cellElementA);
+      const cellB = getCellValue(cellElementB);
+
+      // Handle empty values
+      if (cellA === "" && cellB === "") return 0;
+      if (cellA === "") return -1 * order;
+      if (cellB === "") return 1 * order;
+
+      // Handle "--" as best value (fastest/no difference)
+      if (cellA === "--" || cellB === "--") {
+        if (cellA === "--" && cellB === "--") return 0;
+        return cellA === "--" ? order : -order;
+      }
+
+      // Handle worst status values (DNF, DNS, N/A)
+      // These represent worst values, so:
+      // - Ascending (order=1): worst at top → worst statuses at top
+      // - Descending (order=-1): worst at bottom → worst statuses at bottom
+      const statusA = WORST_STATUS[cellA];
+      const statusB = WORST_STATUS[cellB];
+      
+      if (statusA !== undefined || statusB !== undefined) {
+        if (statusA !== undefined && statusB !== undefined) {
+          return (statusA - statusB) * order;
+        }
+        return statusA !== undefined ? -1 * order : 1 * order;
+      }
+
+      // Parse and compare times (only for time columns)
+      let timeA = null;
+      let timeB = null;
+      if (isTimeColumn) {
+        timeA = parseTime(cellA);
+        timeB = parseTime(cellB);
+      }
+      
+      if (timeA !== null && timeB !== null) {
+        return (timeA - timeB) * order;
+      }
+
+      // Check if value is a valid finite number
+      // This catches edge cases like "123abc", "Infinity", empty/whitespace, null, etc.
+      const numA = Number(cellA);
+      const numB = Number(cellB);
+      // Regex allows: integers, decimals (with or without leading/trailing zeros), negative numbers
+      const isNumberA = cellA !== "" && !isNaN(numA) && isFinite(numA) && /^-?\d*\.?\d+$/.test(cellA);
+      const isNumberB = cellB !== "" && !isNaN(numB) && isFinite(numB) && /^-?\d*\.?\d+$/.test(cellB);
+
+      if (isNumberA && isNumberB) {
+        return (numA - numB) * order;
+      } else if (isNumberA) {
+        return 1 * order;
+      } else if (isNumberB) {
+        return -1 * order;
+      } else {
+        // Locale-aware string comparison with numeric option for better sorting
+        return cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' }) * order;
+      }
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
   }
 
   function updateHeaderStyles(headers, sortedHeader, order) {
@@ -102,8 +175,42 @@ document.addEventListener("DOMContentLoaded", function() {
     sortedHeader.classList.add(order === 1 ? "sorted-asc" : "sorted-desc");
   }
 
+  let currentSortedColumn = 0;
+  let currentSortOrder = 1;
+
+  sortTableByColumn(table, 0, 1);
+  updateHeaderStyles(headers, headers[0], 1);
+
+  headers.forEach((header, index) => {
+    header.addEventListener("click", (e) => {
+      // Don't sort if clicking on a link inside the header
+      if (e.target.closest("a")) {
+        return;
+      }
+
+      // If clicking the same column, toggle sort order
+      // If clicking a different column, default to ascending
+      if (index === currentSortedColumn) {
+        currentSortOrder *= -1;
+      } else {
+        currentSortedColumn = index;
+        currentSortOrder = 1;
+      }
+
+      sortTableByColumn(table, index, currentSortOrder);
+      updateHeaderStyles(headers, header, currentSortOrder);
+    });
+  });
+
   initColumnFilter(table);
-  initTopScrollbar();
+  
+  // Delay scrollbar initialization to ensure table layout has settled after sorting
+  // The new sorting logic is more complex and takes longer, so we need to wait
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      initTopScrollbar();
+    });
+  });
 });
 
 function initTopScrollbar() {

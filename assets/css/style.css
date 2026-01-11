@@ -958,6 +958,7 @@ tbody>tr:nth-child(odd) {
 .flexBox {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  min-height: 50vh;
 }
 
 /* Table scroll container - ensures proper scrolling on all devices */
