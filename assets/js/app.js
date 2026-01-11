@@ -35,22 +35,22 @@ function openPopup(id) {
   popup.classList.toggle("show");
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   const table = document.getElementById("tableDrivers");
   if (!table) return;
 
   const headers = table.querySelectorAll("th");
   if (headers.length === 0) return;
 
-  const WORST_STATUS = { 'dnf': 1, 'dns': 2, 'n/a': 3 };
+  const WORST_STATUS = { dnf: 1, dns: 2, "n/a": 3 };
 
   function parseTime(timeStr) {
-    if (!timeStr || typeof timeStr !== 'string') return null;
+    if (!timeStr || typeof timeStr !== "string") return null;
     const trimmed = timeStr.trim();
-    const isNegative = trimmed.startsWith('-');
-    const cleanTime = trimmed.replace(/^[+-]/, '');
-    const parts = cleanTime.split(':');
-    
+    const isNegative = trimmed.startsWith("-");
+    const cleanTime = trimmed.replace(/^[+-]/, "");
+    const parts = cleanTime.split(":");
+
     if (parts.length === 3) {
       const hours = parseFloat(parts[0]);
       const minutes = parseFloat(parts[1]);
@@ -82,17 +82,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const headers = table.querySelectorAll("thead th");
     const header = headers[columnIndex];
-    const isTimeColumn = header && (
-      header.classList.contains("th-ps") ||
-      header.classList.contains("th-total") ||
-      header.classList.contains("th-diff")
-    );
+    const isTimeColumn =
+      header &&
+      (header.classList.contains("th-ps") ||
+        header.classList.contains("th-total") ||
+        header.classList.contains("th-diff"));
     const isDiffColumn = header && header.classList.contains("th-diff");
 
     rows.sort((rowA, rowB) => {
       const cellElementA = rowA.children[columnIndex];
       const cellElementB = rowB.children[columnIndex];
-      
+
       if (!cellElementA || !cellElementB) {
         if (!cellElementA && !cellElementB) return 0;
         return !cellElementA ? 1 * order : -1 * order;
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const statusA = WORST_STATUS[cellA];
       const statusB = WORST_STATUS[cellB];
-      
+
       if (statusA !== undefined || statusB !== undefined) {
         if (statusA !== undefined && statusB !== undefined) {
           return (statusA - statusB) * order;
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
         timeA = parseTime(cellA);
         timeB = parseTime(cellB);
       }
-      
+
       if (timeA !== null && timeB !== null) {
         const timeOrder = isDiffColumn ? -order : order;
         return (timeA - timeB) * timeOrder;
@@ -134,8 +134,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const numA = Number(cellA);
       const numB = Number(cellB);
-      const isNumberA = cellA !== "" && !isNaN(numA) && isFinite(numA) && /^-?\d*\.?\d+$/.test(cellA);
-      const isNumberB = cellB !== "" && !isNaN(numB) && isFinite(numB) && /^-?\d*\.?\d+$/.test(cellB);
+      const isNumberA =
+        cellA !== "" &&
+        !isNaN(numA) &&
+        isFinite(numA) &&
+        /^-?\d*\.?\d+$/.test(cellA);
+      const isNumberB =
+        cellB !== "" &&
+        !isNaN(numB) &&
+        isFinite(numB) &&
+        /^-?\d*\.?\d+$/.test(cellB);
 
       if (isNumberA && isNumberB) {
         return (numA - numB) * order;
@@ -144,7 +152,12 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (isNumberB) {
         return -1 * order;
       } else {
-        return cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' }) * order;
+        return (
+          cellA.localeCompare(cellB, undefined, {
+            numeric: true,
+            sensitivity: "base"
+          }) * order
+        );
       }
     });
 
@@ -165,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateHeaderStyles(headers, headers[0], 1);
 
   headers.forEach((header, index) => {
-    header.addEventListener("click", (e) => {
+    header.addEventListener("click", e => {
       if (e.target.closest("a")) {
         return;
       }
@@ -183,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   initColumnFilter(table);
-  
+
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       initTopScrollbar();
@@ -194,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function initTopScrollbar() {
   const tableWrapper = document.querySelector(".table-scroll-wrapper");
   const scrollIndicator = document.getElementById("tableScrollIndicator");
-  
+
   if (!tableWrapper || !scrollIndicator) return;
 
   const table = document.getElementById("tableDrivers");
@@ -203,16 +216,19 @@ function initTopScrollbar() {
   function updateScrollbarVisibility() {
     const needsScroll = table.offsetWidth > tableWrapper.clientWidth;
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    
+
     if (isTouchDevice) {
       scrollIndicator.style.display = "none";
       return;
     }
-    
+
     scrollIndicator.style.display = needsScroll ? "block" : "none";
-    
+
     if (needsScroll) {
-      scrollIndicator.style.setProperty("--table-width", table.offsetWidth + "px");
+      scrollIndicator.style.setProperty(
+        "--table-width",
+        table.offsetWidth + "px"
+      );
       void scrollIndicator.offsetHeight;
     }
   }
@@ -248,7 +264,7 @@ function initTopScrollbar() {
 
     const needsScroll = table.offsetWidth > tableWrapper.clientWidth;
     tableWrapper.classList.toggle("is-scrollable", needsScroll);
-    
+
     if (needsScroll) {
       const scrollLeft = tableWrapper.scrollLeft;
       const scrollWidth = tableWrapper.scrollWidth;
@@ -274,10 +290,14 @@ function initTopScrollbar() {
 
   tableWrapper.addEventListener("scroll", handleTableScroll, { passive: true });
 
-  scrollIndicator.addEventListener("scroll", () => {
-    if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
-    scrollTimeout = requestAnimationFrame(syncIndicatorToTable);
-  }, { passive: true   });
+  scrollIndicator.addEventListener(
+    "scroll",
+    () => {
+      if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
+      scrollTimeout = requestAnimationFrame(syncIndicatorToTable);
+    },
+    { passive: true }
+  );
 
   const resizeObserver = new ResizeObserver(() => {
     updateScrollbarVisibility();
@@ -285,7 +305,7 @@ function initTopScrollbar() {
       updateFadeIndicators();
     }
   });
-  
+
   resizeObserver.observe(table);
   resizeObserver.observe(tableWrapper);
 
@@ -326,9 +346,12 @@ function initColumnFilter(table) {
   const scrollIndicator = document.getElementById("tableScrollIndicator");
   const tableWrapper =
     table.closest(".table-scroll-wrapper") || table.parentElement;
-  
+
   if (scrollIndicator) {
-    scrollIndicator.parentElement.insertBefore(filterContainer, scrollIndicator);
+    scrollIndicator.parentElement.insertBefore(
+      filterContainer,
+      scrollIndicator
+    );
   } else {
     tableWrapper.parentElement.insertBefore(filterContainer, tableWrapper);
   }

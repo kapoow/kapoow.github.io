@@ -526,7 +526,7 @@ tbody>tr:nth-child(odd) {
   --gray-border: darkgray;
   --success: green;
   --error: red;
-  
+
   /* Border radius */
   --radius: 12px;
   --radius-sm: 4px;
@@ -534,14 +534,14 @@ tbody>tr:nth-child(odd) {
   --radius-lg: 8px;
   --radius-xl: 10px;
   --radius-circle: 50%;
-  
+
   /* Z-index */
   --z-background: -1;
   --z-base: 1;
   --z-scroll: 10;
   --z-dropdown: 1000;
   --z-dropdown-overlay: 1001;
-  
+
   /* Spacing */
   --spacing-xs: 0.25em;
   --spacing-sm: 0.35em;
@@ -549,7 +549,7 @@ tbody>tr:nth-child(odd) {
   --spacing-lg: 0.6em;
   --spacing-xl: 0.75em;
   --spacing-2xl: 1em;
-  
+
   /* Sizes */
   --scrollbar-height: 12px;
   --scrollbar-width: 8px;
