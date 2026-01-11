@@ -35,9 +35,6 @@ function openPopup(id) {
   popup.classList.toggle("show");
 }
 
-
-
-/*NEW TABLE SORTING WITH FIXED SCROLLBAR TIMING*/
 document.addEventListener("DOMContentLoaded", function () {
   const table = document.getElementById("tableDrivers");
   if (!table) return;
@@ -45,11 +42,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const headers = table.querySelectorAll("th");
   if (headers.length === 0) return;
 
-  // Special status values - worst values (DNF, DNS, N/A)
-  // Note: "--" is NOT a worst value, it represents the best (fastest/no difference)
   const WORST_STATUS = { 'dnf': 1, 'dns': 2, 'n/a': 3 };
 
-  // Parse time format (HH:MM:SS.mmm or +HH:MM:SS.mmm)
   function parseTime(timeStr) {
     if (!timeStr || typeof timeStr !== 'string') return null;
     const trimmed = timeStr.trim();
@@ -86,7 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!tbody) return;
     const rows = Array.from(tbody.querySelectorAll("tr"));
 
-    // Check if this column contains time values by checking the header class
     const headers = table.querySelectorAll("thead th");
     const header = headers[columnIndex];
     const isTimeColumn = header && (
@@ -94,9 +87,9 @@ document.addEventListener("DOMContentLoaded", function () {
       header.classList.contains("th-total") ||
       header.classList.contains("th-diff")
     );
+    const isDiffColumn = header && header.classList.contains("th-diff");
 
     rows.sort((rowA, rowB) => {
-      // Guard against missing cells
       const cellElementA = rowA.children[columnIndex];
       const cellElementB = rowB.children[columnIndex];
       
@@ -108,21 +101,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const cellA = getCellValue(cellElementA);
       const cellB = getCellValue(cellElementB);
 
-      // Handle empty values
       if (cellA === "" && cellB === "") return 0;
       if (cellA === "") return -1 * order;
       if (cellB === "") return 1 * order;
 
-      // Handle "--" as best value (fastest/no difference)
       if (cellA === "--" || cellB === "--") {
         if (cellA === "--" && cellB === "--") return 0;
         return cellA === "--" ? order : -order;
       }
 
-      // Handle worst status values (DNF, DNS, N/A)
-      // These represent worst values, so:
-      // - Ascending (order=1): worst at top → worst statuses at top
-      // - Descending (order=-1): worst at bottom → worst statuses at bottom
       const statusA = WORST_STATUS[cellA];
       const statusB = WORST_STATUS[cellB];
       
@@ -133,7 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return statusA !== undefined ? -1 * order : 1 * order;
       }
 
-      // Parse and compare times (only for time columns)
       let timeA = null;
       let timeB = null;
       if (isTimeColumn) {
@@ -142,14 +128,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       
       if (timeA !== null && timeB !== null) {
-        return (timeA - timeB) * order;
+        const timeOrder = isDiffColumn ? -order : order;
+        return (timeA - timeB) * timeOrder;
       }
 
-      // Check if value is a valid finite number
-      // This catches edge cases like "123abc", "Infinity", empty/whitespace, null, etc.
       const numA = Number(cellA);
       const numB = Number(cellB);
-      // Regex allows: integers, decimals (with or without leading/trailing zeros), negative numbers
       const isNumberA = cellA !== "" && !isNaN(numA) && isFinite(numA) && /^-?\d*\.?\d+$/.test(cellA);
       const isNumberB = cellB !== "" && !isNaN(numB) && isFinite(numB) && /^-?\d*\.?\d+$/.test(cellB);
 
@@ -160,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (isNumberB) {
         return -1 * order;
       } else {
-        // Locale-aware string comparison with numeric option for better sorting
         return cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' }) * order;
       }
     });
@@ -183,13 +166,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   headers.forEach((header, index) => {
     header.addEventListener("click", (e) => {
-      // Don't sort if clicking on a link inside the header
       if (e.target.closest("a")) {
         return;
       }
 
-      // If clicking the same column, toggle sort order
-      // If clicking a different column, default to ascending
       if (index === currentSortedColumn) {
         currentSortOrder *= -1;
       } else {
@@ -204,8 +184,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initColumnFilter(table);
   
-  // Delay scrollbar initialization to ensure table layout has settled after sorting
-  // The new sorting logic is more complex and takes longer, so we need to wait
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       initTopScrollbar();
@@ -226,7 +204,6 @@ function initTopScrollbar() {
     const needsScroll = table.offsetWidth > tableWrapper.clientWidth;
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
     
-    // Don't show on touch devices - let CSS handle it
     if (isTouchDevice) {
       scrollIndicator.style.display = "none";
       return;
@@ -236,7 +213,6 @@ function initTopScrollbar() {
     
     if (needsScroll) {
       scrollIndicator.style.setProperty("--table-width", table.offsetWidth + "px");
-      // Force reflow to ensure scrollbar appears with absolutely positioned content
       void scrollIndicator.offsetHeight;
     }
   }
@@ -246,7 +222,6 @@ function initTopScrollbar() {
     updateFadeIndicators();
   });
 
-  // Sync scroll positions with throttling to prevent flickering
   let isScrollingTable = false;
   let isScrollingIndicator = false;
   let scrollTimeout = null;
@@ -271,10 +246,7 @@ function initTopScrollbar() {
   function updateFadeIndicators() {
     if (!isTouchDevice) return;
 
-    // Check if table is actually scrollable (same check as desktop scrollbar)
     const needsScroll = table.offsetWidth > tableWrapper.clientWidth;
-    
-    // Only add is-scrollable class when table is actually scrollable
     tableWrapper.classList.toggle("is-scrollable", needsScroll);
     
     if (needsScroll) {
@@ -284,15 +256,12 @@ function initTopScrollbar() {
       const maxScroll = scrollWidth - clientWidth;
       const scrollPercent = maxScroll > 0 ? (scrollLeft / maxScroll) * 100 : 0;
 
-      // Remove mask when scrolled past 80%
       tableWrapper.classList.toggle("scrolled-past-80", scrollPercent > 80);
     } else {
-      // Remove scrolled-past-80 class when not scrollable
       tableWrapper.classList.remove("scrolled-past-80");
     }
   }
 
-  // Combined scroll handler for better performance
   function handleTableScroll() {
     if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
     scrollTimeout = requestAnimationFrame(() => {
@@ -373,7 +342,6 @@ function initColumnFilter(table) {
     const img = header.querySelector("img");
     const link = header.querySelector("a");
 
-    // Get column name from text, image alt, or link text
     let columnName = text;
     if (!columnName && img) {
       columnName = img.alt || img.title || `Column ${index + 1}`;

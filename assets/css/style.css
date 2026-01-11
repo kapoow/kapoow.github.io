@@ -987,7 +987,7 @@ tbody>tr:nth-child(odd) {
 
 /* Top scrollbar indicator - visible on all screen sizes */
 .table-scroll-indicator {
-  display: block;
+  display: none;
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
