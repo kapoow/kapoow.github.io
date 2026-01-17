@@ -468,6 +468,11 @@ function initColumnFilter(table) {
     const linkText = header.querySelector("a")?.textContent.trim();
     if (linkText) return linkText;
 
+    // Handle empty th-change header (position change indicator)
+    if (header.classList.contains("th-change")) {
+      return "Change";
+    }
+
     return `Column ${index + 1}`;
   };
 
