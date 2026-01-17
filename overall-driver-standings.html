@@ -4,6 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script>
+    // Runs synchronously during HTML parsing - BEFORE first paint
+    (function() {
+      const getPageType = () => {
+        const pathname = window.location.pathname;
+        const filename = pathname.split("/").pop() || pathname;
+        if (filename.includes("-driver-results.html")) return "driver-results";
+        if (filename.includes("-standings.html")) return "standings";
+        return pathname.replace(/\//g, "_") || "root";
+      };
+      
+      const tableId = "tableDrivers";
+      const storageKey = `columnFilter_${getPageType()}_${tableId}`;
+      const hidden = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      
+      if (hidden.length > 0) {
+        const css = hidden.map(idx => 
+          `#${tableId} thead th:nth-child(${idx + 1}),
+           #${tableId} tbody tr td:nth-child(${idx + 1})`
+        ).join(',') + '{ display: none !important; }';
+        
+        document.write(`<style id="filter-preload">${css}</style>`);
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="./assets/css/style.css">
 
   <link rel="icon" href="./assets/rsc-guy.png">
@@ -73,7 +98,7 @@
       class="iconBtn navMobileOnly"
       aria-controls="seriesMobileNav"
       aria-label="Choose series"
-      onclick="openSeriesMobileNav()"
+      onclick="toggleControlledNav(this)"
     >
       <img class="brand__img brand__img--mobile" src="./assets/rsc-guy.png" alt="Logo" />
     </button>
@@ -88,7 +113,7 @@
       class="iconBtn navMobileOnly"
       aria-controls="mobileNav"
       aria-label="Open menu"
-      onclick="openMobileNav()"
+      onclick="toggleControlledNav(this)"
     >
       <span class="hamburger" aria-hidden="true">☰</span>
     </button>
@@ -153,6 +178,18 @@
         <div class="logo" style="display:flex;">
           <img src="./assets/rsc-guy.png" />
           <h2 style="margin-left:1em;">Overall Driver Standings</h2>
+        </div>
+      </div>
+      <div class="column-filter">
+        <button class="column-filter__btn" type="button" aria-label="Filter columns">
+          <span>Filter Columns</span>
+        </button>
+        <div class="column-filter__menu">
+          <div class="column-filter__items"></div>
+          <div class="column-filter__actions">
+            <button class="column-filter__action-btn" data-action="show-all">Show All</button>
+            <button class="column-filter__action-btn" data-action="close">Close</button>
+          </div>
         </div>
       </div>
       <div class="table-scroll-indicator" id="tableScrollIndicator" aria-hidden="true">

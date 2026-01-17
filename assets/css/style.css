@@ -255,29 +255,9 @@ td {
   text-align: center;
 }
 
-/* Semantic table header/cell helpers for easier per-column styling */
-.th-pos,
-.td-pos {
-  width: 3.5em;
-}
-
-.th-nat,
-.td-nat {
-  width: 3.5em;
-}
-
 .th-driver,
 .td-driver {
   text-align: left;
-}
-
-.th-team-logo,
-.td-team-logo,
-.th-team2,
-.td-team2,
-.th-car,
-.td-car {
-  width: 3.5em;
 }
 
 .th-team-name,
@@ -297,11 +277,6 @@ td {
 .th-points,
 .td-points {
   text-align: center;
-}
-
-.th-leg,
-.td-leg {
-  width: 3em;
 }
 
 .th-stage-points,
